@@ -216,7 +216,7 @@ button:hover { opacity: 0.9; }
   <!-- ================================================================= -->
   <script>
     // 1. ¡MUY IMPORTANTE! Pega aquí la URL de tu Web App de GAS
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzdMPaBEXRVQAJsbDhyJr6-UECS06Gw6sLmOA0iMj8TNhZruU2hODVPsCC9Zz0i7d82/exec';
+    const GAS_WEB_APP_URL = 'URL_DE_LA_APLICACIÓN_WEB_AQUÍ';
 
     // --- Referencias a elementos del DOM ---
     const loginDiv = document.getElementById('loginDiv');
@@ -252,7 +252,7 @@ button:hover { opacity: 0.9; }
         method: 'POST',
         mode: 'cors',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain;charset=utf-8',
         },
         body: JSON.stringify({ action, payload }),
       });
@@ -324,4 +324,3 @@ button:hover { opacity: 0.9; }
 
 </body>
 </html>
-
