@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Registro</title>
+
+<style>
+/* ================== GLOBAL ================== */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Animación de fondo */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.container {
+  width: 90%;
+  max-width: 380px; /* PC normal */
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  z-index: -2;
+  left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 90deg, #4285F4, #DB4437, #F4B400, #0F9D58, #4285F4);
+  animation: rotate 4s linear infinite;
+}
+
+.container::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 4.5px;
+  border-radius: 12px;
+  background: white;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 17px;
+  color: white;
+  transition: 0.3s;
+}
+
+#loginBtn { background: #4CAF50; }
+#registroBtn { background: #2196F3; }
+button:hover { opacity: 0.9; }
+
+.link {
+  text-align: center;
+  margin-top: 20px;
+}
+.link a {
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 15px;
+}
+.link a.loginLink { color: #4CAF50; }
+.link a.registroLink { color: #2196F3; }
+
+.msg {
+  text-align: center;
+  margin-top: 10px;
+  display: none;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.success { background: #e0f7e9; color: #2e7d32; }
+.error { background: #fdecea; color: #c62828; }
+
+/* ================== CELULARES (<480px) ================== */
+@media (max-width: 480px) {
+  body {
+    align-items: stretch;
+  }
+
+  .container {
+    width: 100vw !important;    /* ancho total del móvil */
+    height: 100vh !important;   /* alto total del móvil */
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    padding: 40px;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+
+  h2 {
+    font-size: 28px;
+    margin-bottom: 25px;
+  }
+
+  input, select {
+    padding: 20px;
+    font-size: 18px;
+    margin: 15px 0;
+  }
+
+  button {
+    padding: 22px;
+    font-size: 20px;
+    margin-top: 20px;
+  }
+
+  .link a {
+    font-size: 20px;
+  }
+
+  canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+}
+
+/* ================== TABLETAS (481px - 768px) ================== */
+@media (min-width: 481px) and (max-width: 768px) {
+  .container {
+    max-width: 450px;
+  }
+}
+</style>
+
+
+</head>
+<body>
+  <div class="container">
+
+    <!-- LOGIN -->
+    <div id="loginDiv">
+      <h2>Login</h2>
+      <input type="text" id="loginUsuario" placeholder="Usuario">
+      <input type="password" id="loginPassword" placeholder="Contraseña">
+      
+      <!-- ROL SELECTOR AÑADIDO -->
+      <select id="loginRol">
+        <option value="Usuario">Usuario Estándar</option>
+        <option value="Admin">Administrador</option>
+      </select>
+      
+      <button id="loginBtn" onclick="login()">Login</button>
+      <div class="link">
+        <a class="registroLink" onclick="mostrarRegistro()">¿No tienes cuenta? Registrarse</a>
+      </div>
+      <div id="loginMsg" class="msg error"></div>
+    </div>
+
+    <!-- REGISTRO -->
+    <div id="registroDiv" style="display:none;">
+      <h2>Registro</h2>
+      <input type="text" id="regUsuario" placeholder="Usuario">
+      <input type="email" id="regEmail" placeholder="Email">
+      <input type="password" id="regPassword" placeholder="Contraseña">
+      <button id="registroBtn" onclick="registrar()">Registrar</button>
+      <div class="link">
+        <a class="loginLink" onclick="volverLogin()">Volver al Login</a>
+      </div>
+      <div id="registroMsg" class="msg"></div>
+    </div>
+
+  </div>
+
+  <script>
+    function mostrarRegistro() {
+      document.getElementById('loginDiv').style.display = 'none';
+      document.getElementById('registroDiv').style.display = 'block';
+      limpiarMensajes();
+    }
+
+    function volverLogin() {
+      document.getElementById('loginDiv').style.display = 'block';
+      document.getElementById('registroDiv').style.display = 'none';
+      limpiarMensajes();
+    }
+
+    function limpiarMensajes(){
+      document.getElementById('loginMsg').style.display = "none";
+      document.getElementById('registroMsg').style.display = "none";
+    }
+
+    function login() {
+      const usuario = document.getElementById('loginUsuario').value;
+
+      const password = document.getElementById('loginPassword').value;
+      const rol = document.getElementById('loginRol').value; // <-- OBTENEMOS EL ROL
+
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      btn.innerText = "Validando...";
+
+      // Llamamos a la nueva función con el rol, pasando un objeto con los datos
+      google.script.run.withSuccessHandler(function(resp){
+        const msg = document.getElementById('loginMsg');
+        if(resp.success){
+          // Redirección a la URL dinámica que nos da el servidor
+          window.top.location.href = resp.url; 
+        } else {
+          msg.innerText = resp.msg;
+          msg.className = "msg error";
+          msg.style.display = "block";
+          setTimeout(()=> msg.style.display="none", 4000);
+          btn.disabled = false;
+          btn.innerText = "Login";
+        }
+      }).withFailureHandler(function(err) {
+          alert("Error de comunicación con el servidor: " + err.message);
+          btn.disabled = false;
+          btn.innerText = "Login";
+      }).validarLogin({usuario: usuario, password: password, rol: rol}); // <-- PASAMOS UN OBJETO
+    }
+
+    function registrar() {
+      const usuario = document.getElementById('regUsuario').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+
+      const btn = document.getElementById('registroBtn');
+      btn.disabled = true;
+      btn.innerText = "Registrando...";
+
+      google.script.run.withSuccessHandler(function(resp){
+        const msg = document.getElementById('registroMsg');
+        msg.innerText = resp.msg;
+        msg.style.display = "block";
+        if(resp.success){
+          msg.className = "msg success";
+          setTimeout(volverLogin, resp.duration || 6000);
+        } else {
+          msg.className = "msg error";
+          setTimeout(()=> msg.style.display="none", 4000);
+        }
+        btn.disabled = false;
+        btn.innerText = "Registrar";
+      }).registrarUsuario(usuario,email,password);
+    }
+  </script>
+  <script>
+  // Detectar celular
+  if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    // Reemplazá APP_ID con tu App ID real
+    window.location.href = "appsheet://app?appName=09601b7a-7335-441d-bc30-b2035a5ca7c7";
+  }
+  </script>
+  
+
+</body>
+</html>
