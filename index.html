@@ -44,6 +44,9 @@ body {
   box-sizing: border-box;
   /* CAMBIO: Por defecto, el contenedor NO tiene scroll */
   overflow-y: hidden;
+  border: 4.5px solid transparent;
+  background: white;
+  background-clip: padding-box;
 }
 
 /* NUEVA CLASE: Esta clase activará el scroll cuando sea necesario */
@@ -61,15 +64,6 @@ body {
   height: 200%;
   background: conic-gradient(from 90deg, #4285F4, #DB4437, #F4B400, #0F9D58, #4285F4);
   animation: rotate 4s linear infinite;
-}
-
-.container::after {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: 4.5px;
-  border-radius: 12px;
-  background: white;
 }
 
 h2 {
@@ -326,5 +320,4 @@ button:hover { opacity: 0.9; }
   </script>
 </body>
 </html>
-
 
