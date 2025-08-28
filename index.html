@@ -184,13 +184,12 @@ button:hover { opacity: 0.9; }
       <input type="text" id="loginUsuario" placeholder="Usuario">
       <input type="password" id="loginPassword" placeholder="Contraseña">
       
-      <!-- ROL SELECTOR AÑADIDO -->
       <select id="loginRol">
         <option value="Usuario">Usuario Estándar</option>
         <option value="Admin">Administrador</option>
       </select>
       
-      <button id="loginBtn" onclick="login()">Login</button>
+      <button id="loginBtn">Login</button>
       <div class="link">
         <a class="registroLink" onclick="mostrarRegistro()">¿No tienes cuenta? Registrarse</a>
       </div>
@@ -203,7 +202,7 @@ button:hover { opacity: 0.9; }
       <input type="text" id="regUsuario" placeholder="Usuario">
       <input type="email" id="regEmail" placeholder="Email">
       <input type="password" id="regPassword" placeholder="Contraseña">
-      <button id="registroBtn" onclick="registrar()">Registrar</button>
+      <button id="registroBtn">Registrar</button>
       <div class="link">
         <a class="loginLink" onclick="volverLogin()">Volver al Login</a>
       </div>
@@ -212,88 +211,116 @@ button:hover { opacity: 0.9; }
 
   </div>
 
+  <!-- ================================================================= -->
+  <!-- SCRIPT MODIFICADO PARA USAR FETCH API -->
+  <!-- ================================================================= -->
   <script>
+    // 1. ¡MUY IMPORTANTE! Pega aquí la URL de tu Web App de GAS
+    const GAS_WEB_APP_URL = 'URL_DE_LA_APLICACIÓN_WEB_AQUÍ';
+
+    // --- Referencias a elementos del DOM ---
+    const loginDiv = document.getElementById('loginDiv');
+    const registroDiv = document.getElementById('registroDiv');
+    const loginBtn = document.getElementById('loginBtn');
+    const registroBtn = document.getElementById('registroBtn');
+    const loginMsg = document.getElementById('loginMsg');
+    const registroMsg = document.getElementById('registroMsg');
+
+    // --- Navegación ---
     function mostrarRegistro() {
-      document.getElementById('loginDiv').style.display = 'none';
-      document.getElementById('registroDiv').style.display = 'block';
+      loginDiv.style.display = 'none';
+      registroDiv.style.display = 'block';
       limpiarMensajes();
     }
 
     function volverLogin() {
-      document.getElementById('loginDiv').style.display = 'block';
-      document.getElementById('registroDiv').style.display = 'none';
+      loginDiv.style.display = 'block';
+      registroDiv.style.display = 'none';
       limpiarMensajes();
     }
 
     function limpiarMensajes(){
-      document.getElementById('loginMsg').style.display = "none";
-      document.getElementById('registroMsg').style.display = "none";
+      loginMsg.style.display = "none";
+      registroMsg.style.display = "none";
     }
 
-    function login() {
+    // --- Lógica de comunicación con el servidor (API) ---
+
+    // Función genérica para llamar a nuestra API en Google Apps Script
+    async function callGasApi(action, payload) {
+      const response = await fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action, payload }),
+      });
+      if (!response.ok) {
+        throw new Error('Error de red o del servidor.');
+      }
+      return response.json();
+    }
+
+    // --- Manejadores de eventos ---
+    loginBtn.addEventListener('click', async () => {
       const usuario = document.getElementById('loginUsuario').value;
-
       const password = document.getElementById('loginPassword').value;
-      const rol = document.getElementById('loginRol').value; // <-- OBTENEMOS EL ROL
+      const rol = document.getElementById('loginRol').value;
 
-      const btn = document.getElementById('loginBtn');
-      btn.disabled = true;
-      btn.innerText = "Validando...";
+      loginBtn.disabled = true;
+      loginBtn.innerText = "Validando...";
 
-      // Llamamos a la nueva función con el rol, pasando un objeto con los datos
-      google.script.run.withSuccessHandler(function(resp){
-        const msg = document.getElementById('loginMsg');
-        if(resp.success){
-          // Redirección a la URL dinámica que nos da el servidor
-          window.top.location.href = resp.url; 
+      try {
+        const resp = await callGasApi('login', { usuario, password, rol });
+        if (resp.success) {
+          window.top.location.href = resp.url;
         } else {
-          msg.innerText = resp.msg;
-          msg.className = "msg error";
-          msg.style.display = "block";
-          setTimeout(()=> msg.style.display="none", 4000);
-          btn.disabled = false;
-          btn.innerText = "Login";
+          loginMsg.innerText = resp.msg;
+          loginMsg.className = "msg error";
+          loginMsg.style.display = "block";
+          setTimeout(() => loginMsg.style.display = "none", 4000);
         }
-      }).withFailureHandler(function(err) {
-          alert("Error de comunicación con el servidor: " + err.message);
-          btn.disabled = false;
-          btn.innerText = "Login";
-      }).validarLogin({usuario: usuario, password: password, rol: rol}); // <-- PASAMOS UN OBJETO
-    }
+      } catch (err) {
+        alert("Error de comunicación con el servidor: " + err.message);
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerText = "Login";
+      }
+    });
 
-    function registrar() {
+    registroBtn.addEventListener('click', async () => {
       const usuario = document.getElementById('regUsuario').value;
       const email = document.getElementById('regEmail').value;
       const password = document.getElementById('regPassword').value;
 
-      const btn = document.getElementById('registroBtn');
-      btn.disabled = true;
-      btn.innerText = "Registrando...";
+      registroBtn.disabled = true;
+      registroBtn.innerText = "Registrando...";
 
-      google.script.run.withSuccessHandler(function(resp){
-        const msg = document.getElementById('registroMsg');
-        msg.innerText = resp.msg;
-        msg.style.display = "block";
-        if(resp.success){
-          msg.className = "msg success";
+      try {
+        const resp = await callGasApi('register', { usuario, email, password });
+        registroMsg.innerText = resp.msg;
+        registroMsg.style.display = "block";
+        if (resp.success) {
+          registroMsg.className = "msg success";
           setTimeout(volverLogin, resp.duration || 6000);
         } else {
-          msg.className = "msg error";
-          setTimeout(()=> msg.style.display="none", 4000);
+          registroMsg.className = "msg error";
+          setTimeout(() => registroMsg.style.display = "none", 4000);
         }
-        btn.disabled = false;
-        btn.innerText = "Registrar";
-      }).registrarUsuario(usuario,email,password);
-    }
+      } catch (err) {
+        alert("Error de comunicación con el servidor: " + err.message);
+      } finally {
+        registroBtn.disabled = false;
+        registroBtn.innerText = "Registrar";
+      }
+    });
+
+    // He eliminado el script que te redirigía automáticamente en móvil,
+    // ya que ahora el login debe funcionar correctamente desde el navegador del móvil.
+    // Si quieres esa funcionalidad de vuelta, puedes añadir el script aquí.
+
   </script>
-  <script>
-  // Detectar celular
-  if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-    // Reemplazá APP_ID con tu App ID real
-    window.location.href = "appsheet://app?appName=09601b7a-7335-441d-bc30-b2035a5ca7c7";
-  }
-  </script>
-  
 
 </body>
 </html>
