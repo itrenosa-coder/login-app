@@ -28,12 +28,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Animación de fondo */
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 .container {
   width: 90%;
   max-width: 380px;
@@ -45,26 +39,13 @@ body {
   box-sizing: border-box;
   /* CAMBIO: Por defecto, el contenedor NO tiene scroll */
   overflow-y: hidden;
-  border: 2.5px solid transparent;
   background: white;
-  background-clip: padding-box;
+  border: 1px solid #ddd;
 }
 
 /* NUEVA CLASE: Esta clase activará el scroll cuando sea necesario */
 .container.scrollable {
   overflow-y: auto;
-}
-
-.container::before {
-  content: '';
-  position: absolute;
-  z-index: -2;
-  left: -50%;
-  top: -50%;
-  width: 200%;
-  height: 200%;
-  background: conic-gradient(from 90deg, #4285F4, #DB4437, #F4B400, #0F9D58, #4285F4);
-  animation: rotate 4s linear infinite;
 }
 
 h2 {
